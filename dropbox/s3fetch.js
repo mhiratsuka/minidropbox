@@ -2,6 +2,8 @@
 
 const fetch = require('node-fetch');
 const AWS = require('aws-sdk'); 
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const present = new Date();
 
 const s3 = new AWS.S3();
 
@@ -22,5 +24,28 @@ module.exports.s3fetch = (event, context, callback) => {
         Body: buffer,
       }).promise()
     ))
+    .then(
+      const params = {
+              TableName: 'minidropbox',
+              Item: {
+                name: event.key,
+                date: present
+              }
+            };
+      dynamoDb.put(params, (error, result) =>{
+            if (error) {
+              console.error(error);
+              callback(new Error('Unable to add image info.'));
+              return;
+            }
+
+            const response = {
+              statusCode: 200,
+              body: JSON.stringify(result.Item)
+            }
+
+            callback(null, response);
+          });
+    )
     .then(v => callback(null, v), callback);
 };

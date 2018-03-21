@@ -1,4 +1,4 @@
-service: minidropbox_serverless
+service: minidropbox
 
 custom:
   bucket: minidropboxserverless
@@ -12,68 +12,44 @@ provider:
     - Effect: Allow
       Action:
         - s3:PutObject
+        - s3:GetObject
         - s3:DeleteObject
       Resource: "arn:aws:s3:::${self:custom.bucket}/*"
-    # - Effect: Allow
-    #   Action:
-    #     - dynamodb:DescribeTable
-    #     - dynamodb:Query
-    #     - dynamodb:Scan
-    #     - dynamodb:GetItem
-    #     - dynamodb:PutItem
-    #     - dynamodb:UpdateItem
-    #     - dynamodb:DeleteItem
-    #   Resource: "arn:aws:dynamodb:us-east-1:*:*"
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"
 
 functions:
-  save:
-    handler: minidropbox/s3fetch.s3fetch
+  s3fetch:
+    handler: dropbox/s3fetch.s3fetch
     environment:
       BUCKET: ${self:custom.bucket}
+    events:
+      - http:
+          path: dropbox
+          method: post
+          cors: true
 
+resources:
+  Resources:
+    MiniDropboxDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: 'Retain'
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: name
+          AttributeType: S
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 'minidropbox'
 
-
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
