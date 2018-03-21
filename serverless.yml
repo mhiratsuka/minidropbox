@@ -18,9 +18,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:DescribeTable
-        - dynamodb:Query
         - dynamodb:Scan
-        - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:us-east-1:*:*"
@@ -35,6 +33,20 @@ functions:
           path: dropbox
           method: post
           cors: true
+  read:
+      handler: dropbox/read.read
+      events:
+        - http:
+            path: dropbox
+            method: get
+            cors: true
+  delete:
+      handler: dropbox/delete.delete
+      events:
+        - http:
+            path: dropbox/{name}
+            method: delete
+            cors: true
 
 resources:
   Resources:
