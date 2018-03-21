@@ -45,7 +45,7 @@ functions:
       events:
         - http:
             path: dropbox/{name}
-            method: delete
+            method: put
             cors: true
 
 resources:

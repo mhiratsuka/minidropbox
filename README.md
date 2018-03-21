@@ -19,8 +19,9 @@ Choose "POST", type URL in the box next to the http method and JSON data in the 
 Choose "GET" and type URL in the box next to the http method
 <br/>
 
-#### Delete an image
-Choose "DELETE" and type URL/{name} in the box next to the http method
+#### Delete an image from s3 and change status in dynamoDB
+Choose "PUT" and type URL/{name} in the box next to the http method and JSON data in the Body like
+{"key": "github.png"}
 <br/>
 
 ### What I used

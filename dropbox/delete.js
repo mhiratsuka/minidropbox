@@ -3,6 +3,7 @@
 const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const s3 = new AWS.S3();
+const present = new Date();
 const now = present.toLocaleString();
 const eventname = "deleted the image";
 
@@ -43,7 +44,7 @@ module.exports.delete = (event, context, callback) => {
 
 			const response = {
 				statusCode: 200,
-				body: JSON.stringify({})
+				body: JSON.stringify(result.Item)
 			};
 
 			callback(null, response);
