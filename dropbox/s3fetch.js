@@ -3,18 +3,22 @@
 const fetch = require('node-fetch');
 const AWS = require('aws-sdk'); 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const s3 = new AWS.S3();
 const present = new Date();
-const params = {
+let year =  present.getFullYear();
+let month =  present.getMonth() + 1;
+let date =  present.getDate();
+let now = month + "/" + date + "/" + year
+
+module.exports.s3fetch = (event, context, callback) => {
+  const params = {
               TableName: 'minidropbox',
               Item: {
                 name: event.key,
-                date: present
+                date: now
               }
             };
 
-const s3 = new AWS.S3();
-
-module.exports.s3fetch = (event, context, callback) => {
   fetch(event.image_url)
     .then((response) => {
       if (response.ok) {
@@ -31,13 +35,11 @@ module.exports.s3fetch = (event, context, callback) => {
         Body: buffer,
       }).promise()
     ))
-    .then(v => callback(null, v), callback);
-
-    
-      dynamoDb.put(params, (error, result) =>{
+    .then(
+        dynamoDb.put(params, (error, result) =>{
             if (error) {
               console.error(error);
-              callback(new Error('Unable to add image info.'));
+              callback(new Error('Unable to add image info.' + present));
               return;
             }
 
@@ -47,5 +49,8 @@ module.exports.s3fetch = (event, context, callback) => {
             }
 
             callback(null, response);
-          });
+          })
+    )
+    .then(v => callback(null, v), callback);
+      
 };
