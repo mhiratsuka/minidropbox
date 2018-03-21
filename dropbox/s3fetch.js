@@ -5,7 +5,8 @@ const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const s3 = new AWS.S3();
 const present = new Date();
-let now = present.toLocaleString();
+const now = present.toLocaleString();
+const eventname = "added the image";
 
 module.exports.s3fetch = (event, context, callback) => {
   const data = JSON.parse(event.body);
@@ -14,7 +15,8 @@ module.exports.s3fetch = (event, context, callback) => {
               TableName: 'minidropbox',
               Item: {
                 name: data.key,
-                date: now
+                date: now,
+                event: eventname
               }
             };
   

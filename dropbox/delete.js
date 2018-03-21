@@ -3,6 +3,9 @@
 const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const s3 = new AWS.S3();
+const now = present.toLocaleString();
+const eventname = "deleted the image";
+
 
 
 module.exports.delete = (event, context, callback) => {
@@ -24,12 +27,14 @@ module.exports.delete = (event, context, callback) => {
 	function dbDelete() {
 			const dbparams = {
 				TableName: 'minidropbox',
-				Key: {
-					name: event.pathParameters.name
+				Item: {
+					name: event.pathParameters.name,
+					date: now,
+                    event: eventname
 				}
 			};
 
-		dynamoDb.delete(dbparams, (error, result) =>{
+		dynamoDb.put(dbparams, (error, result) =>{
 			if (error) {
 				console.error(error);
 				callback(new Error('Unable to remove the image info.'));
