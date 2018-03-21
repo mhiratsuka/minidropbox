@@ -4,6 +4,13 @@ const fetch = require('node-fetch');
 const AWS = require('aws-sdk'); 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const present = new Date();
+const params = {
+              TableName: 'minidropbox',
+              Item: {
+                name: event.key,
+                date: present
+              }
+            };
 
 const s3 = new AWS.S3();
 
@@ -24,14 +31,9 @@ module.exports.s3fetch = (event, context, callback) => {
         Body: buffer,
       }).promise()
     ))
-    .then(
-      const params = {
-              TableName: 'minidropbox',
-              Item: {
-                name: event.key,
-                date: present
-              }
-            };
+    .then(v => callback(null, v), callback);
+
+    
       dynamoDb.put(params, (error, result) =>{
             if (error) {
               console.error(error);
@@ -46,6 +48,4 @@ module.exports.s3fetch = (event, context, callback) => {
 
             callback(null, response);
           });
-    )
-    .then(v => callback(null, v), callback);
 };
